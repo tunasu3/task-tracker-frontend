@@ -23,18 +23,20 @@ const TaskDetailsPanel = ({ tasks, onClose, filterStatus }) => {
           backgroundColor: "white",
           padding: "20px",
           borderRadius: "8px",
-          width: "80%",
+          maxWidth: "90%",
           maxHeight: "80%",
           overflowY: "auto",
+          boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
         }}
       >
-        <h2>
-          Tasks -{" "}
-          {filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}
+        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+          Tasks - {filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}
         </h2>
 
         {tasks.length === 0 ? (
-          <p>No tasks found for this filter.</p>
+          <p style={{ textAlign: "center", fontStyle: "italic" }}>
+            No tasks found for this filter.
+          </p>
         ) : (
           <table
             style={{
@@ -94,13 +96,17 @@ const TaskDetailsPanel = ({ tasks, onClose, filterStatus }) => {
 
         <button
           style={{
+            display: "block",
+            width: "100%",
             marginTop: "15px",
-            padding: "8px 12px",
+            padding: "10px",
             backgroundColor: "#c45656ff",
             color: "white",
             border: "none",
             borderRadius: "5px",
             cursor: "pointer",
+            fontWeight: "bold",
+            fontSize: "16px",
           }}
           onClick={onClose}
         >

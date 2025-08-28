@@ -1,3 +1,4 @@
+/* Global Styles */
 body {
   background-color: #f5f7fa;
   font-family: 'Inter', sans-serif;
@@ -16,25 +17,27 @@ h1, h2 {
   color: #1b1a1a;
 }
 
-/* Form */
-.form input, .form button {
-  display: block;
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  width: 100%;
-  max-width: 400px;
-}
-
+/* Button Styles */
 button {
-  background-color: #8a151f;
+  background-color: #c97069;
   color: white;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
   transition: background-color 0.2s;
 }
 
 button:hover {
-  background-color: #bb1b30;
+  background-color: #af8787;
+}
+
+button.cancel-button {
+  background-color: #da7872;
+}
+
+button.cancel-button:hover {
+  background-color: #e98181;
 }
 
 /* Task Table */
@@ -86,32 +89,29 @@ button:hover {
 
 /* Modal */
 .modal-overlay {
-  background-color: rgba(0, 0, 0, 0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5); /* Darkened background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
-  padding: 30px;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.task-list {
-  list-style: none;
-  padding: 0;
-}
-
-.task-item {
-  background: #f1f1f1;
-  padding: 15px;
+  background-color: rgb(224, 197, 197);
+  padding: 20px;
   border-radius: 8px;
-  margin-bottom: 10px;
+  width: 400px;
+  max-width: 90%;
+  max-height: 70vh;  /* Limits the height of the modal */
+  overflow-y: auto;  /* Adds a vertical scrollbar if the content overflows */
 }
 
-.task-header {
-  font-weight: bold;
-  font-size: 1.1em;
-  margin-bottom: 5px;
-}
+/* Task List */
 .task-list {
   list-style: none;
   padding: 0;
@@ -138,34 +138,88 @@ button:hover {
   margin: 4px 0;
   font-size: 14px;
   color: #cfc8c8;
-
 }
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .task-table th, .task-table td {
+    padding: 8px;
+  }
+  .task-table {
+    width: 100%;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .task-table {
+    display: block;
+    width: 100%;
+  }
+  .task-table th, .task-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .task-table tr {
+    margin-bottom: 10px;
+  }
+}
+/* Add spacing between the search input and the add task button */
+input[type="text"] {
+  margin-right: 880px; /* Adds space on the right side of the search input */
+}
+
+/* Add some padding or margin to the button */
+button {
+  margin-left: 10px; /* Adds space on the left side of the button */
+}
+/* Add margin to the "Add New Task" button */
+.add-task-button {
+  margin-right: 20px; /* Adjust the value to add space to the right */
+  margin-left: 20px;  /* Adjust the value to add space to the left */
+}
+
+/* Add padding to modal content for spacing */
+.modal-content {
+  padding: 20px;
+  margin-top: 20px;  /* Adds space between the modal and the content above it */
+}
+/* Add space between input fields and buttons */
+.modal-content input {
+  margin-bottom: 15px;  /* Adjust the value as needed */
+}
+
+.modal-content button {
+  margin-top: 10px;
+}
+/* Make modal wider */
+.modal-content {
+  width: 500px; /* Or a percentage like 70% */
+}
+
+
+/* Center modal */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.4);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
-
-.modal-content {
-  background-color: rgb(224, 197, 197);
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
+/* Add margin between input fields */
+.modal-content input {
+  margin-bottom: 10px;  /* Adjust this value to control spacing between input fields */
+  padding: 10px;  /* Optional: Add padding inside input fields for better readability */
+  width: 100%;  /* Ensures inputs stretch to full width of the modal */
 }
 
-.modal-content input {
-  display: block;
-  margin: 10px 0;
-  width: 100%;
-  padding: 8px;
+/* Optional: Add some margin for the buttons inside the modal */
+.modal-content button {
+  margin-top: 8px;  /* Space between the buttons */
+}
+/* Increase modal content padding */
+.modal-content {
+  padding: 30px;
+  width: 500px;  /* Adjust the width if necessary */
+  box-sizing: border-box;
 }

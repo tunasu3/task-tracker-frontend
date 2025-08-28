@@ -4,8 +4,8 @@ import StatsPanel from './components/StatsPanel';
 import TaskDetailsPanel from './components/TaskDetailsPanel';
 
 function App() {
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks] = useState([]); // All tasks
+  const [loading, setLoading] = useState(true); // Loading state
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -14,13 +14,14 @@ function App() {
     isCompleted: false,
     assignedTo: "",
   });
-  const [filterStatus, setFilterStatus] = useState(null);  // Filtre durumu burada
-  const [editingTask, setEditingTask] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("all"); // Filter status
+  const [searchQuery, setSearchQuery] = useState(""); // Store the search query
+  const [editingTask, setEditingTask] = useState(null); // Task being edited
+  const [showAddModal, setShowAddModal] = useState(false); // Modal visibility
+  const [currentPage, setCurrentPage] = useState(1); // Pagination state
+  const tasksPerPage = 3; // Tasks per page
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const tasksPerPage = 4;
-
+  // Fetch tasks from the API
   const fetchTasks = () => {
     fetch(`https://localhost:7275/api/Tasks/GetAll`)
       .then((res) => res.json())
@@ -34,7 +35,23 @@ function App() {
     fetchTasks();
   }, []);
 
-  // Görev ekleme fonksiyonu
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to first page on search change
+  };
+
+  const filteredTasks = tasks.filter((task) => {
+  console.log(task.isCompleted); // Check the value here
+  const matchesStatus =
+    filterStatus === "all" || task.status.toLowerCase() === filterStatus;
+  const matchesSearch =
+    task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    task.description.toLowerCase().includes(searchQuery.toLowerCase());
+  return matchesStatus && matchesSearch;
+});
+
+  // Handle Add Task
   const handleAddTask = () => {
     fetch(`https://localhost:7275/api/Tasks`, {
       method: "POST",
@@ -53,19 +70,24 @@ function App() {
           assignedTo: "",
         });
         setShowAddModal(false);
+      })
+      .catch((error) => {
+        console.error("Error adding task:", error);
       });
   };
 
-  // Silme fonksiyonu
+  // Delete a task
   const handleDelete = (id) => {
-    fetch(`https://localhost:7275/api/Tasks/${id}`, {
-      method: "DELETE",
-    }).then(() => {
-      setTasks((prev) => prev.filter((task) => task.id !== id));
-    });
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      fetch(`https://localhost:7275/api/Tasks/${id}`, {
+        method: "DELETE",
+      }).then(() => {
+        setTasks((prev) => prev.filter((task) => task.id !== id));
+      });
+    }
   };
 
-  // Güncelleme fonksiyonu
+  // Update a task
   const handleUpdate = () => {
     fetch(`https://localhost:7275/api/Tasks/${editingTask.id}`, {
       method: "PUT",
@@ -79,46 +101,44 @@ function App() {
     });
   };
 
-  // Detay gösterme butonuna alert değil, burada kullanmadık.
-  // Filtrelenmiş görevler
-  const filteredTasks = filterStatus
-    ? tasks.filter((task) => {
-        if (filterStatus === "completed") return task.isCompleted == true;
-        if (filterStatus === "pending") return task.isCompleted == false;
-        if (filterStatus === "all") return true;
-        return task.status === filterStatus;
-      })
-    : tasks;
-
-  // Sayfalama işlemi
+  // Pagination logic
   const indexOfLastTask = currentPage * tasksPerPage;
   const indexOfFirstTask = indexOfLastTask - tasksPerPage;
-  const currentTasks = tasks.slice(indexOfFirstTask, indexOfLastTask);
-  const totalPages = Math.ceil(tasks.length / tasksPerPage);
+  const currentTasks = filteredTasks.slice(indexOfFirstTask, indexOfLastTask);
+  const totalPages = Math.ceil(filteredTasks.length / tasksPerPage);
+
+  // Modal toggle
+  const toggleModal = () => {
+    setShowAddModal(!showAddModal);
+  };
+
+  // Modal outside click
+  const handleOverlayClick = () => {
+    setShowAddModal(false); // Close modal
+  };
 
   return (
     <div className="container">
       <h1>📝 Task Tracker</h1>
 
-      {/* İstatistik Paneli, filtre seçimini buradan alıyoruz */}
+      {/* Stats Panel */}
       <StatsPanel onFilterSelect={setFilterStatus} statsData={tasks} />
 
-      {/* Filtre seçilmişse detay modalı göster */}
-      {filterStatus && (
-        <TaskDetailsPanel
-          tasks={filteredTasks}
-          onClose={() => setFilterStatus(null)}
-          filterStatus={filterStatus}
-        />
-      )}
+      {/* Search Input */}
+      <input
+        type="text"
+        placeholder="Search tasks..."
+        value={searchQuery}
+        onChange={handleSearchChange}
+      />
 
-      {/* Add Task Modal Açma Butonu */}
+      {/* Add Task Button */}
       <button onClick={() => setShowAddModal(true)}>➕ Add New Task</button>
 
       {/* Add Task Modal */}
       {showAddModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="modal-overlay" onClick={handleOverlayClick}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>Add New Task</h2>
             <input
               placeholder="Title"
@@ -198,14 +218,21 @@ function App() {
                   <td>
                     <button onClick={() => handleDelete(task.id)}>Delete</button>
                     <button onClick={() => setEditingTask(task)}>Edit</button>
-                    {/* Detaylar artık StatsPanel tıklamasıyla gösteriliyor */}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
+          {/* Pagination Controls */}
           <div className="pagination">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
               <button
                 key={num}
@@ -215,6 +242,13 @@ function App() {
                 {num}
               </button>
             ))}
+
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
           </div>
         </>
       )}
